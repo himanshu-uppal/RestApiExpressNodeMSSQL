@@ -1,0 +1,5 @@
+--- Initialized project ---- 
+npm init
+
+---- Installed express sequelize and tedious(MSSQL library) ----
+npm install express sequelize tedious
