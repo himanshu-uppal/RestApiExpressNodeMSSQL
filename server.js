@@ -7,6 +7,8 @@ app.use(express.urlencoded({
     extended:true
 }))
 
+app.use('/',require('./routes'))  //have to change this to /api
+
 db.sync().then(()=>{
     console.log('Database Synced')
     app.listen(4444,()=>{
