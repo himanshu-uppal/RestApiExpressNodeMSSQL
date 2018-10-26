@@ -1,29 +1,16 @@
-const Sequelize = require('sequelize')
-const DT = Sequelize.DataTypes
+const express = require('express')
+const {db} = require('./models')
 
-const db = new Sequelize({
-    dialect:'mssql',
-    username:'test',
-    database:'test',
-    password:'test',
-    host:'127.0.0.1',
-    port:1433
-})
+const app = express()
+app.use(express.json())
+app.use(express.urlencoded({
+    extended:true
+}))
 
-const Task = db.define('task',{
-    name:{
-        type:DT.STRING(50),
-        allowNull:false
-    },
-    priority:{
-        type:DT.INTEGER(),
-        defaultValue:0
-    }
-})
+db.sync().then(()=>{
+    console.log('Database Synced')
+    app.listen(4444,()=>{
+        console.log('Server started at http://localhost:4444')
+    })
+}).catch(console.error)
 
-async function init(){
-    db.sync()
-    db.authenticate()
-}
-
-init()
