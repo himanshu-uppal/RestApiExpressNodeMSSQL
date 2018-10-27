@@ -40,16 +40,16 @@ router.post('/users/login',async(req,res)=>{
               }, 'himanshu')
              res.send(user.token)
          }
-        })
-     
-    }
-    
+        })     
+    }    
 })
 
-router.get('/user',auth.required,function(req, res) {
-    if (!req.user.admin) return res.sendStatus(401);
-    res.sendStatus(200);
-  })
+router.get('/user',auth.required,function(req, res) {    
+    User.findById(req.payload.id).then(function(user){
+        if(!user){ return res.sendStatus(401); }    
+        return res.json(user);
+      })
+    })
 
 
 /* to be used in this file 
