@@ -9,7 +9,8 @@ const db = new Sequelize({
    username:'test',
    database:'test',
    password:'test',
-   host:'10.175.12.90',
+   //host:'10.175.12.90',
+   host:'192.168.1.6',
    port:1433
 })
 

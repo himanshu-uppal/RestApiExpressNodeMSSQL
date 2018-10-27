@@ -24,5 +24,20 @@ router.post('/',async (req,res)=>{
     }    
 })
 
+router.post('/login',async(req,res)=>{
+    
+    if(req.body){
+        User.findOne({where:{email:req.body.email}}).then((user)=>{            
+         if(!user){
+             res.send('Not registered user')
+         }
+         else{
+             res.json('logged in successfully')
+         }
+        })
+     
+    }
+    
+})
 
 module.exports = router
