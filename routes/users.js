@@ -1,14 +1,16 @@
 const {Router} = require('express')
 const {User} = require('../models')
+const auth = require('./auth')
+const jwt = require('jsonwebtoken')
 
 const router = Router()
 
-router.get('/',async (req,res)=>{
+router.get('/users',async (req,res)=>{
     console.log('users fetched')
     res.send('users fetched')
 })
 
-router.post('/',async (req,res)=>{
+router.post('/users',async (req,res)=>{
     let user = new User()
     console.log('users created')
     if(req.body){
@@ -24,7 +26,7 @@ router.post('/',async (req,res)=>{
     }    
 })
 
-router.post('/login',async(req,res)=>{
+router.post('/users/login',async(req,res)=>{
     
     if(req.body){
         User.findOne({where:{email:req.body.email}}).then((user)=>{            
@@ -32,12 +34,34 @@ router.post('/login',async(req,res)=>{
              res.send('Not registered user')
          }
          else{
-             res.json('logged in successfully')
+             user.token = jwt.sign({
+                id: user.id,
+                username: user.username,
+              }, 'himanshu')
+             res.send(user.token)
          }
         })
      
     }
     
 })
+
+router.get('/user',auth.required,function(req, res) {
+    if (!req.user.admin) return res.sendStatus(401);
+    res.sendStatus(200);
+  })
+
+
+/* to be used in this file 
+var jwt = require('express-jwt');
+
+app.get('/protected',
+  jwt({secret: 'shhhhhhared-secret'}),
+  function(req, res) {
+    if (!req.user.admin) return res.sendStatus(401);
+    res.sendStatus(200);
+  });
+
+  */
 
 module.exports = router
