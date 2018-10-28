@@ -1,7 +1,13 @@
+/*
+POST /api/users/login
+POST /api/users
+GET /api/user
+PUT /api/user
+*/
+
 const {Router} = require('express')
 const {User} = require('../models')
 const auth = require('./auth')
-
 
 const router = Router()
 
@@ -26,8 +32,7 @@ router.post('/users',async (req,res)=>{
     }    
 })
 
-router.post('/users/login',async(req,res)=>{
-    
+router.post('/users/login',async(req,res)=>{    
     if(req.body){
         User.findOne({where:{email:req.body.email}}).then((user)=>{            
          if(!user){
@@ -35,7 +40,7 @@ router.post('/users/login',async(req,res)=>{
          }
          else{
              user.token = user.generateJwtToken()
-             res.send(user.token)
+             res.send(user)
          }
         })     
     }    
