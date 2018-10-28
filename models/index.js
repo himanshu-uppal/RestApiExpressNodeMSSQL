@@ -3,6 +3,7 @@ const {article} = require('./Article')
 const {user} = require('./User')
 const {comment} = require('./Comment')
 const {tag} = require('./Tag')
+const jwt = require('jsonwebtoken')
 
 const db = new Sequelize({
     dialect:'mssql',
@@ -16,6 +17,12 @@ const db = new Sequelize({
 
 const Article = db.define('article',article)
 const User = db.define('user',user)
+User.prototype.generateJwtToken = function () {
+    return jwt.sign({
+        id: this.id,
+        username: this.username,
+      }, 'himanshu')
+}
 const Comment = db.define('comment',comment)
 const Tag = db.define('tag',tag)
 

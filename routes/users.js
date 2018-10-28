@@ -1,7 +1,7 @@
 const {Router} = require('express')
 const {User} = require('../models')
 const auth = require('./auth')
-const jwt = require('jsonwebtoken')
+
 
 const router = Router()
 
@@ -34,10 +34,7 @@ router.post('/users/login',async(req,res)=>{
              res.send('Not registered user')
          }
          else{
-             user.token = jwt.sign({
-                id: user.id,
-                username: user.username,
-              }, 'himanshu')
+             user.token = user.generateJwtToken()
              res.send(user.token)
          }
         })     
@@ -51,17 +48,5 @@ router.get('/user',auth.required,function(req, res) {
       })
     })
 
-
-/* to be used in this file 
-var jwt = require('express-jwt');
-
-app.get('/protected',
-  jwt({secret: 'shhhhhhared-secret'}),
-  function(req, res) {
-    if (!req.user.admin) return res.sendStatus(401);
-    res.sendStatus(200);
-  });
-
-  */
 
 module.exports = router
