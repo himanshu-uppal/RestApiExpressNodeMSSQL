@@ -2,7 +2,7 @@ const jwt = require('express-jwt')
 var auth  = {
     required:jwt({
         secret: 'himanshu',
-        credentialsRequired: false,
+        //credentialsRequired: false,
         userProperty: 'payload',
         getToken: function getTokenFromHeader(req) {
             console.log('inside middleware')
