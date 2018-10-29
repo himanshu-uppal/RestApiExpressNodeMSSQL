@@ -23,6 +23,8 @@ User.prototype.generateJwtToken = function () {
         username: this.username,
       }, 'himanshu')
 }
+
+
 const Comment = db.define('comment',comment)
 const Tag = db.define('tag',tag)
 

@@ -16,10 +16,10 @@ DELETE /api/articles/:slug/comments/:id
 
 const {Sequelize} = require('sequelize')
 const {Router} = require('express')
-const {Article} = require('../models')
+const {Article,User} = require('../models')
 const auth = require('./auth')
 const Op = Sequelize.Op
-const {User} = require('../models')
+
 
 const router = Router()
  
@@ -85,18 +85,56 @@ router.get('/:slug',async(req,res)=>{
 router.post('/',auth.required,function(req,res){
 
     //fetch user
-    const article = new Article()
-    
+    const article = new Article()    
         article.slug=req.body.slug,
         article.title=req.body.title,
         article.description=req.body.description,
         article.body=req.body.body
+        article.userId = req.payload.id
         article.save()     
 
     res.send(article)
     
 })
 
+router.put('/:slug',auth.required,function(req,res){
+    const article = Article.findOne({where:{slug:req.params.slug},
+        include:[User]        
+    }).then((article)=>{
+        if(!article){
+            res.send('no article')
+        }
+       // res.send(article)
+        console.log('user id ='+req.payload.id)
+        console.log(article)
+        console.log('article author='+article.userId)     
+       // console.log(article.user)
+        if(req.payload.id == article.userId){
+            if(req.body.title != article.title )
+            article.title = req.body.title
+            if(req.body.slug != article.slug )
+            article.slug = req.body.slug
+            if(req.body.description != article.description )
+            article.description = req.body.description
+            if(req.body.body != article.body)
+            article.body = req.body.body
+           // console.log('in article update')
+            article.save().then(()=>{
+                res.send(article)
+            })
+        }
+        else{
+            res.send('not article author')
+
+        }
+
+    },
+    (error)=>{
+        res.send('no article found')
+    })
+    
+
+})
 
 module.exports = router
 

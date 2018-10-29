@@ -40,6 +40,7 @@ router.post('/users/login',async(req,res)=>{
          }
          else{
              user.token = user.generateJwtToken()
+             console.log(user.token)
              res.send(user)
          }
         })     
