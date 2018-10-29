@@ -7,7 +7,7 @@ module.exports = {
             type:DT.STRING(100)
         },
         token:{
-            type:DT.STRING(100)
+            type:DT.STRING(200)
         },
         username:{
             type:DT.TEXT('tiny')

@@ -3,6 +3,11 @@ POST /api/users/login
 POST /api/users
 GET /api/user
 PUT /api/user
+
+
+GET /api/profiles/:username
+POST /api/profiles/:username/follow
+DELETE /api/profiles/:username/follow
 */
 
 const {Router} = require('express')
@@ -38,7 +43,10 @@ router.post('/users/login',async(req,res)=>{
          else{
              user.token = user.generateJwtToken()
              console.log(user.token)
-             res.send(user)
+             user.save().then(()=>{
+                res.send(user)
+             })
+             
          }
         })     
     }    
