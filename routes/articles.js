@@ -132,9 +132,38 @@ router.put('/:slug',auth.required,function(req,res){
     (error)=>{
         res.send('no article found')
     })
+})
+
+
+router.delete('/:slug',auth.required,function(req,res){
+    const article = Article.findOne({where:{slug:req.params.slug},
+        include:[User]        
+    }).then((article)=>{
+        if(!article){
+            res.send('no article')
+        }
+      
+        if(req.payload.id == article.userId){
+          
+            article.destroy().then(()=>{
+                res.send('article deleted')
+            })
+        }
+        else{
+            res.send('not article author')
+
+        }
+
+    },
+    (error)=>{
+        res.send('no article found')
+    })
+})
+    
     
 
-})
+
+
 
 module.exports = router
 
