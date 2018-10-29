@@ -11,10 +11,7 @@ const auth = require('./auth')
 
 const router = Router()
 
-router.get('/users',async (req,res)=>{
-    console.log('users fetched')
-    res.send('users fetched')
-})
+
 
 router.post('/users',async (req,res)=>{
     let user = new User()
@@ -53,6 +50,31 @@ router.get('/user',auth.required,function(req, res) {
         return res.json(user);
       })
     })
+
+
+    
+router.put('/user',auth.required,function(req,res){
+
+    const user = User.findById(req.payload.id).then((user)=>{
+        if(req.body.email != user.email){
+            user.email = req.body.email
+        }
+        if(req.body.bio != user.bio){
+            user.bio = req.body.bio
+        }
+        if(req.body.image != user.image){
+            user.image = req.body.image
+        }
+        user.save().then((user)=>{
+            res.send(user)
+        })
+
+
+    }    ,
+    (error)=>{
+        res.send('no user found')
+    })
+})
 
 
 module.exports = router
