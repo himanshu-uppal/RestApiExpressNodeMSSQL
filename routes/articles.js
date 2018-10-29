@@ -24,12 +24,6 @@ const {User} = require('../models')
 const router = Router()
  
 router.get('/',async(req,res)=>{
-    const articles = await Article.findAll().then((result)=>{
-        res.send(result)
-    })
-    
-})
-router.get('/:slug',async(req,res)=>{
     let whereClause = []
     let offset=0,limit=10
     for(key of Object.keys(req.query)){
@@ -45,10 +39,9 @@ router.get('/:slug',async(req,res)=>{
                 }).then((user)=>{                    
                    if(user){
                     whereClause.push({userId:user.id})
-                   }                  
+                   }              
                      
-                })  
-
+                })
                 }
              
             break;
@@ -64,15 +57,26 @@ router.get('/:slug',async(req,res)=>{
             break;
         }
     }
-    const article = await Article.findAll({
+    const articles = await Article.findAll({
         where:{
              [Op.and]:whereClause
             
         }   ,
         offset:offset,
-        limit:limit   
+        limit:limit 
 
         
+    }).then((result)=>{
+        res.send(result)
+    })
+    
+})
+router.get('/:slug',async(req,res)=>{
+    
+    const article = await Article.findAll({
+        where:{
+            slug:req.params.slug
+        }
     }).then((article)=>{
         res.send(article)
     })
