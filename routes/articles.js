@@ -72,7 +72,7 @@ router.get('/',async(req,res)=>{
         for(let article of articles){
             newArticles.push(article.toSendManyJSON())
         }
-        res.send({
+        res.json({
             articles:newArticles,
             articlesCount:articles.length
         })
@@ -86,23 +86,26 @@ router.get('/:slug',async(req,res)=>{
         },
         include:[{model:User,attributes:['username','bio','image']}]
     }).then((article)=>{
-        res.send(article.toSendJSON())
+        res.json(article.toSendJSON())
     }).catch(console.error)
     
 })
 router.post('/',auth.required,function(req,res){
 
-    //fetch user
     const article = new Article()    
         article.slug=req.body.slug,
         article.title=req.body.title,
         article.description=req.body.description,
         article.body=req.body.body
         article.userId = req.payload.id
-        article.save()     
-
-    res.send(article)
-    
+        article.save().then(()=>{
+            Article.findOne({
+                where:{slug:article.slug},
+                include:[{model:User,attributes:['username','bio','image']}]
+            }).then((article)=>{
+                res.json(article.toSendJSON())
+            })
+        })    
 })
 
 router.put('/:slug',auth.required,function(req,res){
