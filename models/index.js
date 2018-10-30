@@ -10,12 +10,12 @@ const db = new Sequelize({
    username:'test',
    database:'test',
    password:'test',
-   //host:'10.175.12.90',
-   host:'192.168.1.6',
+   host:'10.175.12.81',
+   //host:'192.168.1.6',
    port:1433
 })
 
-const Article = db.define('article',article)
+/* User Model */
 const User = db.define('user',user)
 User.prototype.generateJwtToken = function () {
     return jwt.sign({
@@ -24,11 +24,46 @@ User.prototype.generateJwtToken = function () {
       }, 'himanshu')
 }
 
+User.prototype.toJSON = function(){
+    return         {
+        user: {
+              email: this.email,
+              token: this.token,
+              username: this.username,
+              bio: this.bio,
+              image: this.image
+            }
+          }
+    
+}
+/* Article Model */
+const Article = db.define('article',article)
+Article.prototype.toJSON = function(){
+    return {
+          article: {
+          slug: this.slug,
+          title: this.title,
+          description: this.description,
+          body: this.body,
+          createdAt: this.createdAt,
+          updatedAt: this.updatedAt, 
+          author:{
+              username:this.user.username,
+              bio:this.user.bio,
+              image:this.user.image,
+              following:'haha'
+          }      
+        }
+      }
+}
 
+/* Comment Model */
 const Comment = db.define('comment',comment)
+
+/* Tag Model */
 const Tag = db.define('tag',tag)
 
-
+/* Associations */
 //Association between Article and User
 Article.belongsTo(User)
 User.hasMany(Article)

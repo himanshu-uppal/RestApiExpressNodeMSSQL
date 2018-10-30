@@ -35,7 +35,8 @@ router.get('/',async(req,res)=>{
             if(req.query.author){
                 console.log('author='+req.query.author);
                 const user = await User.findOne({                    
-                    where:{username:req.query.author}
+                    where:{username:req.query.author},
+                    include:[User]
                 }).then((user)=>{                    
                    if(user){
                     whereClause.push({userId:user.id})
@@ -73,13 +74,14 @@ router.get('/',async(req,res)=>{
 })
 router.get('/:slug',async(req,res)=>{
     
-    const article = await Article.findAll({
+    const article = await Article.findOne({
         where:{
             slug:req.params.slug
-        }
+        },
+        include:[{model:User,attributes:['username','bio','image']}]
     }).then((article)=>{
         res.send(article)
-    })
+    }).catch(console.error)
     
 })
 router.post('/',auth.required,function(req,res){
