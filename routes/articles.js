@@ -62,25 +62,31 @@ router.get('/',async(req,res)=>{
         where:{
              [Op.and]:whereClause
             
-        }   ,
+        },
         offset:offset,
-        limit:limit 
-
+        limit:limit,
+        include:[{model:User,attributes:['username','bio','image']}]
         
-    }).then((result)=>{
-        res.send(result)
+    }).then((articles)=>{
+        let newArticles = []
+        for(let article of articles){
+            newArticles.push(article.toSendManyJSON())
+        }
+        res.send({
+            articles:newArticles,
+            articlesCount:articles.length
+        })
     })
     
 })
-router.get('/:slug',async(req,res)=>{
-    
+router.get('/:slug',async(req,res)=>{    
     const article = await Article.findOne({
         where:{
             slug:req.params.slug
         },
         include:[{model:User,attributes:['username','bio','image']}]
     }).then((article)=>{
-        res.send(article)
+        res.send(article.toSendJSON())
     }).catch(console.error)
     
 })

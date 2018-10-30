@@ -38,7 +38,7 @@ User.prototype.toJSON = function(){
 }
 /* Article Model */
 const Article = db.define('article',article)
-Article.prototype.toJSON = function(){
+Article.prototype.toSendJSON = function(){
     return {
           article: {
           slug: this.slug,
@@ -55,6 +55,23 @@ Article.prototype.toJSON = function(){
           }      
         }
       }
+}
+
+Article.prototype.toSendManyJSON = function(){
+    return {         
+          slug: this.slug,
+          title: this.title,
+          description: this.description,
+          body: this.body,
+          createdAt: this.createdAt,
+          updatedAt: this.updatedAt, 
+          author:{
+              username:this.user.username,
+              bio:this.user.bio,
+              image:this.user.image,
+              following:'haha'
+          }      
+        }      
 }
 
 /* Comment Model */
