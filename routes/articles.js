@@ -110,7 +110,7 @@ router.post('/',auth.required,function(req,res){
 
 router.put('/:slug',auth.required,function(req,res){
     const article = Article.findOne({where:{slug:req.params.slug},
-        include:[User]        
+        include:[{model:User,attributes:['username','bio','image']}]        
     }).then((article)=>{
         if(!article){
             res.send('no article')
@@ -129,9 +129,8 @@ router.put('/:slug',auth.required,function(req,res){
             article.description = req.body.description
             if(req.body.body != article.body)
             article.body = req.body.body
-           // console.log('in article update')
             article.save().then(()=>{
-                res.send(article)
+                res.json(article.toSendJSON())
             })
         }
         else{
