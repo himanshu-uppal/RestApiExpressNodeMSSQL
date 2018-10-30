@@ -13,6 +13,7 @@ DELETE /api/profiles/:username/follow
 const {Router} = require('express')
 const {User} = require('../models')
 const auth = require('./auth')
+const {Sequelize} = require('sequelize')
 
 const router = Router()
 
@@ -25,11 +26,15 @@ router.post('/users',async (req,res)=>{
         user.username = req.body.username
         user.email = req.body.email
         user.password = req.body.password
-        console.log('body has data')
         user.save().then(()=>{
             User.findOne({where:{username:user.username}}).then()
             res.json(user.toSendJSON())
             console.log('user saved')
+        },
+        error=>{
+            if(error instanceof Sequelize.ValidationError) {
+              res.send(error.errors[0].message) //to change the message access way
+            }
         })
         
     }    
