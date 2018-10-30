@@ -24,7 +24,7 @@ User.prototype.generateJwtToken = function () {
       }, 'himanshu')
 }
 
-User.prototype.toJSON = function(){
+User.prototype.toSendJSON = function(){
     return         {
         user: {
               email: this.email,

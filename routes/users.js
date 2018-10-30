@@ -27,7 +27,8 @@ router.post('/users',async (req,res)=>{
         user.password = req.body.password
         console.log('body has data')
         user.save().then(()=>{
-            res.json(user.toJSON())
+            User.findOne({where:{username:user.username}}).then()
+            res.json(user.toSendJSON())
             console.log('user saved')
         })
         
@@ -44,7 +45,7 @@ router.post('/users/login',async(req,res)=>{
              user.token = user.generateJwtToken()
              console.log(user.token)
              user.save().then(()=>{
-                res.send(user.toJSON())
+                res.send(user.toSendJSON())
              })
              
          }
@@ -55,7 +56,7 @@ router.post('/users/login',async(req,res)=>{
 router.get('/user',auth.required,function(req, res) {    
     User.findById(req.payload.id).then(function(user){
         if(!user){ return res.sendStatus(401); }    
-        return res.json(user.toJSON());
+        return res.json(user.toSendJSON());
       })
     })
 
@@ -74,7 +75,7 @@ router.put('/user',auth.required,function(req,res){
             user.image = req.body.image
         }
         user.save().then((user)=>{
-            res.send(user.toJSON())
+            res.send(user.toSendJSON())
         })
 
 
