@@ -4,14 +4,16 @@ const {user} = require('./User')
 const {comment} = require('./Comment')
 const {tag} = require('./Tag')
 const jwt = require('jsonwebtoken')
+const slug = require('slug')
 
 const db = new Sequelize({
     dialect:'mssql',
    username:'test',
    database:'test',
    password:'test',
-   host:'10.175.12.81',
+   //host:'10.175.12.81',
    //host:'192.168.1.6',
+   host:'192.168.43.52',
    port:1433
 })
 
@@ -25,7 +27,7 @@ User.prototype.generateJwtToken = function () {
 }
 
 User.prototype.toSendJSON = function(){
-    return         {
+    return  {
         user: {
               email: this.email,
               token: this.token,
@@ -33,8 +35,7 @@ User.prototype.toSendJSON = function(){
               bio: this.bio,
               image: this.image
             }
-          }
-    
+          }    
 }
 /* Article Model */
 const Article = db.define('article',article)
@@ -72,6 +73,10 @@ Article.prototype.toSendManyJSON = function(){
               following:'haha'
           }      
         }      
+}
+
+Article.prototype.generateSlug = function(){
+    return slug(this.title)+'-'+Math.floor(1000+Math.random(1,100)*9000)
 }
 
 /* Comment Model */

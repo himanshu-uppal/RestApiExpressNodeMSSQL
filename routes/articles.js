@@ -92,12 +92,12 @@ router.get('/:slug',async(req,res)=>{
 })
 router.post('/',auth.required,function(req,res){
 
-    const article = new Article()    
-        article.slug=req.body.slug,
+    const article = new Article()        
         article.title=req.body.title,
         article.description=req.body.description,
         article.body=req.body.body
         article.userId = req.payload.id
+        article.slug=article.generateSlug()
         article.save().then(()=>{
             Article.findOne({
                 where:{slug:article.slug},
