@@ -94,9 +94,9 @@ router.get('/:slug',async(req,res)=>{
 router.post('/',auth.required,function(req,res){
 
     const article = new Article()        
-        article.title=req.body.title,
-        article.description=req.body.description,
-        article.body=req.body.body
+        article.title=req.body.article.title,
+        article.description=req.body.article.description,
+        article.body=req.body.article.body
         article.userId = req.payload.id
         article.slug=article.generateSlug()
         article.save().then(()=>{
@@ -122,12 +122,12 @@ router.put('/:slug',auth.required,function(req,res){
         console.log('article author='+article.userId)     
        // console.log(article.user)
         if(req.payload.id == article.userId){
-            if(req.body.title )
-            article.title = req.body.title
-            if(req.body.description )
-            article.description = req.body.description
-            if(req.body.body )
-            article.body = req.body.body
+            if(req.body.article.title )
+            article.title = req.body.article.title
+            if(req.body.article.description )
+            article.description = req.body.article.description
+            if(req.body.article.body )
+            article.body = req.body.article.body
             article.save().then(()=>{
                 res.json(article.toSendJSON())
             })
@@ -150,8 +150,7 @@ router.delete('/:slug',auth.required,function(req,res){
     }).then((article)=>{
         if(!article){
             res.send('no article')
-        }
-      
+        }      
         if(req.payload.id == article.userId){
           
             article.destroy().then(()=>{
@@ -162,7 +161,6 @@ router.delete('/:slug',auth.required,function(req,res){
             res.send('not article author')
 
         }
-
     },
     (error)=>{
         res.send('no article found')
@@ -170,11 +168,11 @@ router.delete('/:slug',auth.required,function(req,res){
 })
 
 router.post('/:slug/comments',auth.required,async(req,res)=>{
-    const commentBody = req.body.body
+ 
 
     Article.findOne({where:{slug:req.params.slug}}).then((article)=>{
         const comment = Comment.create({
-            body : commentBody,
+            body : req.body.comment.body,
             userId:req.payload.id,
             articleId :article.id 
         }).then((comment)=>{

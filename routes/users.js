@@ -20,9 +20,9 @@ router.post('/users',async (req,res)=>{
     let user = new User()
     console.log('users created')
     if(req.body){
-        user.username = req.body.username
-        user.email = req.body.email
-        user.password = req.body.password
+        user.username = req.body.user.username
+        user.email = req.body.user.email
+        user.password = req.body.user.password
         user.save().then(()=>{
             User.findOne({where:{username:user.username}}).then()
             res.json(user.toSendJSON())
@@ -39,7 +39,7 @@ router.post('/users',async (req,res)=>{
 
 router.post('/users/login',async(req,res)=>{    
     if(req.body){
-        User.findOne({where:{email:req.body.email}}).then((user)=>{            
+        User.findOne({where:{email:req.body.user.email}}).then((user)=>{            
          if(!user){
              res.send('Not registered user')
          }
@@ -67,14 +67,14 @@ router.get('/user',auth.required,function(req, res) {
 router.put('/user',auth.required,function(req,res){
 
     const user = User.findById(req.payload.id).then((user)=>{
-        if(req.body.email != user.email){
-            user.email = req.body.email
+        if(req.body.user.email){
+            user.email = req.body.user.email
         }
-        if(req.body.bio != user.bio){
-            user.bio = req.body.bio
+        if(req.body.user.bio){
+            user.bio = req.body.user.bio
         }
-        if(req.body.image != user.image){
-            user.image = req.body.image
+        if(req.body.image){
+            user.image = req.body.user.image
         }
         user.save().then((user)=>{
             res.send(user.toSendJSON())
