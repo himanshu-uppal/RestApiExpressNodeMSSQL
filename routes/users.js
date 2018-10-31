@@ -20,22 +20,22 @@ router.post('/users',async (req,res)=>{
         email :req.body.user.email,
         password :req.body.user.password
     }).then((user)=>{               
-        res.json(user.toSendJSON())
+        res.status(201).json(user.toSendJSON())
         console.log('user saved')
-    }).catch(error=>{res.send(error.errors[0].message)})    
+    }).catch(error=>{res.status(400).send(error.errors[0].message)})    
 })
 
 router.post('/users/login',async(req,res)=>{    
     if(req.body){
         User.findOne({where:{email:req.body.user.email}}).then((user)=>{            
          if(!user){
-             res.send('Not registered user')
+             res.sendStatus(401)
          }
          else{
              if(req.body.user.password != user.password){
-                res.send('Incorrect password')
+                res.status(401).send('Incorrect password')
              }                    
-            res.send(user.toSendJSON())
+            res.status(200).send(user.toSendJSON())
             
          }
         })     
@@ -44,14 +44,13 @@ router.post('/users/login',async(req,res)=>{
 
 router.get('/user',auth.required,function(req, res) {    
     User.findById(req.payload.id).then(function(user){
-        if(!user){ return res.sendStatus(401); }         
-        return res.json(user.toSendJSON());
+        if(!user){ return res.sendStatus(404); }         
+        return res.status(200).json(user.toSendJSON());
       })
     })
 
     
 router.put('/user',auth.required,function(req,res){
-
     const user = User.findById(req.payload.id).then((user)=>{
         if(req.body.user.email){
             user.email = req.body.user.email
@@ -63,12 +62,13 @@ router.put('/user',auth.required,function(req,res){
             user.image = req.body.user.image
         }
         user.save().then((user)=>{
-            res.send(user.toSendJSON())
+            res.status(201).send(user.toSendJSON())
         })
-    }    ,
-    (error)=>{
-        res.send('no user found')
+    } ).catch(error=>{
+        res.sendStatus(404)
+
     })
+   
 })
 
 

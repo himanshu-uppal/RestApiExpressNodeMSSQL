@@ -13,7 +13,7 @@ router.get('/',async(req,res)=>{
             allTags.push(tag.toSendJSON())
 
         }
-        res.json({tags:allTags})
+        res.status(200).json({tags:allTags})
     })
 })
 

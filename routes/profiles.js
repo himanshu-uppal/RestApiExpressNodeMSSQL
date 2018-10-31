@@ -11,8 +11,8 @@ const router = Router()
 
 router.get('/:username',auth.required,function(req,res){
     User.findById(req.payload.id).then(function(user){
-        if(!user){ return res.sendStatus(401); }    
-        return res.json(user.toSendProfileJSON());
+        if(!user){ return res.sendStatus(404); }    
+        return res.status(200).json(user.toSendProfileJSON());
       })
 
 })
