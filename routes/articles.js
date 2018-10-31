@@ -5,6 +5,7 @@ GET /api/articles/:slug
 POST /api/articles
 PUT /api/articles/:slug
 DELETE /api/articles/:slug
+
 POST /api/articles/:slug/comments
 GET /api/articles/:slug/comments
 DELETE /api/articles/:slug/comments/:id
@@ -16,7 +17,7 @@ DELETE /api/articles/:slug/comments/:id
 
 const {Sequelize} = require('sequelize')
 const {Router} = require('express')
-const {Article,User} = require('../models')
+const {Article,User,Comment} = require('../models')
 const auth = require('./auth')
 const Op = Sequelize.Op
 
@@ -167,6 +168,24 @@ router.delete('/:slug',auth.required,function(req,res){
     },
     (error)=>{
         res.send('no article found')
+    })
+})
+
+router.post('/:slug/comments',auth.required,async(req,res)=>{
+    const commentBody = req.body.body
+
+    Article.findOne({where:{slug:req.params.slug}}).then((article)=>{
+        const comment = Comment.create({
+            body : commentBody,
+            userId:req.payload.id,
+            articleId :article.id 
+        }).then((comment)=>{
+            Comment.findOne({where:{id:comment.id},include:[{model:User,attributes:['username','bio','image']}]}).then((comment)=>{
+                res.json(comment.toSendJSON())
+            })
+            
+        })      
+       
     })
 })
     

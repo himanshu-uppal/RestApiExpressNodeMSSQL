@@ -11,9 +11,9 @@ const db = new Sequelize({
    username:'test',
    database:'test',
    password:'test',
-   //host:'10.175.12.81',
+   host:'10.175.14.46',
    //host:'192.168.1.6',
-   host:'192.168.43.52',
+   //host:'192.168.43.52',
    port:1433
 })
 
@@ -92,6 +92,38 @@ Article.prototype.generateSlug = function(){
 
 /* Comment Model */
 const Comment = db.define('comment',comment)
+Comment.prototype.toSendJSON = function(){
+    return {
+        comment: {
+          id: this.id,
+          createdAt: this.createdAt,
+          updatedAt: this.updatedAt,
+          body: this.body,
+          author: {
+            username: this.user.username,
+            bio: this.user.bio,
+            image: this.user.image,
+            following: 'haha'
+          }
+        }
+      }
+
+}
+
+Comment.prototype.toSendManyJSON = function(){
+    return {
+          id: this.id,
+          createdAt: this.createdAt,
+          updatedAt: this.updatedAt,
+          body: this.body,
+          author: {
+            username: this.user.username,
+            bio: this.user.bio,
+            image: this.user.image,
+            following: 'haha'
+          }
+        }
+}
 
 /* Tag Model */
 const Tag = db.define('tag',tag)
