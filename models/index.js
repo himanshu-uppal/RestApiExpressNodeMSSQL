@@ -127,6 +127,9 @@ Comment.prototype.toSendManyJSON = function(){
 
 /* Tag Model */
 const Tag = db.define('tag',tag)
+Tag.prototype.toSendJSON = function(){
+    return this.name
+}
 
 /* Associations */
 //Association between Article and User

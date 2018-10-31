@@ -2,11 +2,19 @@
 GET /api/tags
 */
 const {Router} = require('express')
+const {Tag} = require('../models')
 
 const router = Router()
 
 router.get('/',async(req,res)=>{
-    res.send('tags')
+    Tag.findAll().then((tags)=>{
+        allTags = []
+        for(tag of tags){
+            allTags.push(tag.toSendJSON())
+
+        }
+        res.json({tags:allTags})
+    })
 })
 
 module.exports = router
