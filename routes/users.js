@@ -14,8 +14,6 @@ const {Sequelize} = require('sequelize')
 
 const router = Router()
 
-
-
 router.post('/users',async (req,res)=>{
     User.create({
         username :req.body.user.username,
@@ -50,7 +48,6 @@ router.get('/user',auth.required,function(req, res) {
         return res.json(user.toSendJSON());
       })
     })
-
 
     
 router.put('/user',auth.required,function(req,res){

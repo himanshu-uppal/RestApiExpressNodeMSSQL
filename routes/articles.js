@@ -21,7 +21,6 @@ const {Article,User,Comment} = require('../models')
 const auth = require('./auth')
 const Op = Sequelize.Op
 
-
 const router = Router()
 
 router.get('/',async(req,res)=>{
@@ -168,7 +167,6 @@ router.delete('/:slug',auth.required,function(req,res){
 })
 
 router.post('/:slug/comments',auth.required,async(req,res)=>{
- 
 
     Article.findOne({where:{slug:req.params.slug}}).then((article)=>{
         const comment = Comment.create({

@@ -8,3 +8,4 @@ router.use('/profiles',require('./profiles'))
 router.use('/tags',require('./tags'))
 
 module.exports = router
+
