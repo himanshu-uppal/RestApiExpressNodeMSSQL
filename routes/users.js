@@ -17,24 +17,14 @@ const router = Router()
 
 
 router.post('/users',async (req,res)=>{
-    let user = new User()
-    console.log('users created')
-    if(req.body){
-        user.username = req.body.user.username
-        user.email = req.body.user.email
-        user.password = req.body.user.password
-        user.save().then(()=>{
-            User.findOne({where:{username:user.username}}).then()
-            res.json(user.toSendJSON())
-            console.log('user saved')
-        },
-        error=>{
-            if(error instanceof Sequelize.ValidationError) {
-              res.send(error.errors[0].message) //to change the message access way
-            }
-        })
-        
-    }    
+    User.create({
+        username :req.body.user.username,
+        email :req.body.user.email,
+        password :req.body.user.password
+    }).then((user)=>{               
+        res.json(user.toSendJSON())
+        console.log('user saved')
+    }).catch(error=>{res.send(error.errors[0].message)})    
 })
 
 router.post('/users/login',async(req,res)=>{    
@@ -44,12 +34,11 @@ router.post('/users/login',async(req,res)=>{
              res.send('Not registered user')
          }
          else{
-             user.token = user.generateJwtToken()
-             console.log(user.token)
-             user.save().then(()=>{
-                res.send(user.toSendJSON())
-             })
-             
+             if(req.body.user.password != user.password){
+                res.send('Incorrect password')
+             }                    
+            res.send(user.toSendJSON())
+            
          }
         })     
     }    
@@ -57,7 +46,7 @@ router.post('/users/login',async(req,res)=>{
 
 router.get('/user',auth.required,function(req, res) {    
     User.findById(req.payload.id).then(function(user){
-        if(!user){ return res.sendStatus(401); }    
+        if(!user){ return res.sendStatus(401); }         
         return res.json(user.toSendJSON());
       })
     })
@@ -79,8 +68,6 @@ router.put('/user',auth.required,function(req,res){
         user.save().then((user)=>{
             res.send(user.toSendJSON())
         })
-
-
     }    ,
     (error)=>{
         res.send('no user found')

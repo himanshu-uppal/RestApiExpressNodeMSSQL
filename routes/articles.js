@@ -178,8 +178,7 @@ router.post('/:slug/comments',auth.required,async(req,res)=>{
         }).then((comment)=>{
             Comment.findOne({where:{id:comment.id},include:[{model:User,attributes:['username','bio','image']}]}).then((comment)=>{
                 res.json(comment.toSendJSON())
-            })
-            
+            })            
         })      
        
     })

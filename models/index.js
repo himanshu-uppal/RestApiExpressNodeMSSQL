@@ -30,7 +30,7 @@ User.prototype.toSendJSON = function(){
     return  {
         user: {
               email: this.email,
-              token: this.token,
+              token: this.generateJwtToken(),
               username: this.username,
               bio: this.bio,
               image: this.image

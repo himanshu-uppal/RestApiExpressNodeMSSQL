@@ -8,9 +8,6 @@ module.exports = {
             validate:{isEmail:{msg:"Must be in email format"}},
             unique:{msg:'Email is already taken'}
         },
-        token:{
-            type:DT.STRING(200)
-        },
         username:{
             type:DT.TEXT('tiny'),
             unique:{msg:'Username is already taken'}
@@ -20,6 +17,9 @@ module.exports = {
             type:DT.TEXT
         },
         image:{
+            type:DT.STRING(100)
+        },
+        password:{
             type:DT.STRING(100)
         }
     }
