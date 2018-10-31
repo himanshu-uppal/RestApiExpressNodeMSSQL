@@ -207,8 +207,7 @@ router.get('/:slug/comments',async(req,res)=>{
 
 router.delete('/:slug/comments/:id',auth.required,async(req,res)=>{
     Article.findOne({where:{slug:req.params.slug}}).then((article)=>{
-        const comment = Comment.findOne({where:{id:req.params.id}}).then((comment)=>{
-           
+        const comment = Comment.findOne({where:{id:req.params.id}}).then((comment)=>{           
            comment.destroy()
            res.send('comment deleted')
             
