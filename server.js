@@ -9,7 +9,7 @@ app.use(express.urlencoded({
 
 app.use('/',require('./routes'))  //have to change this to /api
 
-db.sync({force: true}).then(()=>{
+db.sync().then(()=>{
     console.log('Database Synced')
     app.listen(4444,()=>{
         console.log('Server started at http://localhost:4444')
