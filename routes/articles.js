@@ -188,6 +188,36 @@ router.post('/:slug/comments',auth.required,async(req,res)=>{
        
     })
 })
+
+router.get('/:slug/comments',async(req,res)=>{
+    Article.findOne({where:{slug:req.params.slug}}).then((article)=>{
+        const comments = Comment.findAll({where:{articleId:article.id},include:[{model:User,attributes:['username','bio','image']}]}).then((comments)=>{
+            let allComments = []
+            for(let comment of comments){
+                allComments.push(comment.toSendManyJSON())
+            }
+            res.json({
+                comments:allComments
+            })
+            
+        })       
+       
+    })
+})
+
+router.delete('/:slug/comments/:id',auth.required,async(req,res)=>{
+    Article.findOne({where:{slug:req.params.slug}}).then((article)=>{
+        const comment = Comment.findOne({where:{id:req.params.id}}).then((comment)=>{
+           
+           comment.destroy()
+           res.send('comment deleted')
+            
+        })       
+       
+    })
+})
+
+
     
     
 
