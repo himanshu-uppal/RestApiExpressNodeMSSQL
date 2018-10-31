@@ -23,7 +23,7 @@ const Op = Sequelize.Op
 
 
 const router = Router()
- 
+
 router.get('/',async(req,res)=>{
     let whereClause = []
     let offset=0,limit=10
@@ -122,13 +122,11 @@ router.put('/:slug',auth.required,function(req,res){
         console.log('article author='+article.userId)     
        // console.log(article.user)
         if(req.payload.id == article.userId){
-            if(req.body.title != article.title )
+            if(req.body.title )
             article.title = req.body.title
-            if(req.body.slug != article.slug )
-            article.slug = req.body.slug
-            if(req.body.description != article.description )
+            if(req.body.description )
             article.description = req.body.description
-            if(req.body.body != article.body)
+            if(req.body.body )
             article.body = req.body.body
             article.save().then(()=>{
                 res.json(article.toSendJSON())
