@@ -37,6 +37,17 @@ User.prototype.toSendJSON = function(){
             }
           }    
 }
+
+User.prototype.toSendProfileJSON = function(){
+    return  {
+        profile: {
+              username: this.username,
+              bio: this.bio,
+              image: this.image,
+              following:'haha'
+            }
+          }    
+}
 /* Article Model */
 const Article = db.define('article',article)
 Article.prototype.toSendJSON = function(){

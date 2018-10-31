@@ -10,7 +10,10 @@ const {User} = require('../models')
 const router = Router()
 
 router.get('/:username',auth.required,function(req,res){
-    res.send(req.params.username)
+    User.findById(req.payload.id).then(function(user){
+        if(!user){ return res.sendStatus(401); }    
+        return res.json(user.toSendProfileJSON());
+      })
 
 })
 
