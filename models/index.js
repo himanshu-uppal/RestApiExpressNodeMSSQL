@@ -11,9 +11,9 @@ const db = new Sequelize({
    username:'test',
    database:'test',
    password:'test',
-   host:'10.175.14.46',
+  // host:'10.175.14.46',
    //host:'192.168.1.6',
-   //host:'192.168.43.52',
+   host:'192.168.43.52',
    port:1433
 })
 
@@ -87,6 +87,7 @@ Article.prototype.toSendManyJSON = function(){
 }
 
 Article.prototype.generateSlug = function(){
+    if(this.title == '') return res.sendStatus(400)
     return slug(this.title)+'-'+Math.floor(1000+Math.random(1,100)*9000)
 }
 

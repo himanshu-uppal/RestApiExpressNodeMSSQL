@@ -72,10 +72,12 @@ router.get('/',async(req,res)=>{
         for(let article of articles){
             newArticles.push(article.toSendManyJSON())
         }
-        res.json({
+        res.status(200).json({
             articles:newArticles,
             articlesCount:articles.length
         })
+    }).catch(error=>{
+        res.sendStatus(404)
     })
     
 })
@@ -86,12 +88,16 @@ router.get('/:slug',async(req,res)=>{
         },
         include:[{model:User,attributes:['username','bio','image']}]
     }).then((article)=>{
-        res.json(article.toSendJSON())
-    }).catch(console.error)
+        res.status(200).json(article.toSendJSON())
+    }).catch(error=>{
+        res.sendStatus(404)
+    })
     
 })
-router.post('/',auth.required,function(req,res){
-
+router.post('/',auth.required,function(req,res){    
+    if(req.body.article != '' && (req.body.article.title == '' ||  req.body.article.description == ''||    req.body.article.body == '') ){
+            res.sendStatus(400)
+    }
     const article = new Article()        
         article.title=req.body.article.title,
         article.description=req.body.article.description,
@@ -103,23 +109,17 @@ router.post('/',auth.required,function(req,res){
                 where:{slug:article.slug},
                 include:[{model:User,attributes:['username','bio','image']}]
             }).then((article)=>{
-                res.json(article.toSendJSON())
+                res.status(201).json(article.toSendJSON())
             })
-        })    
+        }).catch(error=>{
+            res.sendStatus(400)
+        })  
 })
 
 router.put('/:slug',auth.required,function(req,res){
     const article = Article.findOne({where:{slug:req.params.slug},
         include:[{model:User,attributes:['username','bio','image']}]        
-    }).then((article)=>{
-        if(!article){
-            res.send('no article')
-        }
-       // res.send(article)
-        console.log('user id ='+req.payload.id)
-        console.log(article)
-        console.log('article author='+article.userId)     
-       // console.log(article.user)
+    }).then((article)=>{    
         if(req.payload.id == article.userId){
             if(req.body.article.title )
             article.title = req.body.article.title
@@ -128,18 +128,19 @@ router.put('/:slug',auth.required,function(req,res){
             if(req.body.article.body )
             article.body = req.body.article.body
             article.save().then(()=>{
-                res.json(article.toSendJSON())
+                res.status(201).json(article.toSendJSON())
             })
         }
         else{
-            res.send('not article author')
+            res.sendStatus(403) //dont have permission
 
         }
 
-    },
-    (error)=>{
-        res.send('no article found')
+    }).catch(error=>{
+        res.sendStatus(404)
+
     })
+    
 })
 
 
@@ -147,23 +148,22 @@ router.delete('/:slug',auth.required,function(req,res){
     const article = Article.findOne({where:{slug:req.params.slug},
         include:[User]        
     }).then((article)=>{
-        if(!article){
-            res.send('no article')
-        }      
+     
         if(req.payload.id == article.userId){
           
             article.destroy().then(()=>{
-                res.send('article deleted')
+                res.sendStatus(200)
             })
         }
         else{
-            res.send('not article author')
+            res.sendStatus(403) //dont have permission
+
 
         }
-    },
-    (error)=>{
-        res.send('no article found')
+    }).catch(error=>{
+        res.sendStatus(404)
     })
+  
 })
 
 router.post('/:slug/comments',auth.required,async(req,res)=>{
@@ -175,8 +175,10 @@ router.post('/:slug/comments',auth.required,async(req,res)=>{
             articleId :article.id 
         }).then((comment)=>{
             Comment.findOne({where:{id:comment.id},include:[{model:User,attributes:['username','bio','image']}]}).then((comment)=>{
-                res.json(comment.toSendJSON())
+                res.status(200).json(comment.toSendJSON())
             })            
+        }).catch(error=>{
+            res.sendStatus(404)
         })      
        
     })
@@ -189,12 +191,14 @@ router.get('/:slug/comments',async(req,res)=>{
             for(let comment of comments){
                 allComments.push(comment.toSendManyJSON())
             }
-            res.json({
+            res.status(200).json({
                 comments:allComments
             })
             
         })       
        
+    }).catch(error=>{
+        res.sendStatus(404)
     })
 })
 
@@ -202,10 +206,12 @@ router.delete('/:slug/comments/:id',auth.required,async(req,res)=>{
     Article.findOne({where:{slug:req.params.slug}}).then((article)=>{
         const comment = Comment.findOne({where:{id:req.params.id}}).then((comment)=>{           
            comment.destroy()
-           res.send('comment deleted')
+           res.sendStatus(200)
             
         })       
        
+    }).catch(error=>{
+        res.sendStatus(404)
     })
 })
 
