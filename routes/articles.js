@@ -69,34 +69,6 @@ router.get('/',async(req,res)=>{
         
     })
 
-    function resolveAfter2Seconds() {
-        return new Promise(resolve => {
-            for(let article of articles){
-                            const articleTags = article.getTags({attributes:['name']})
-                                  let tagList =[]            
-                                  for(tag of articleTags){
-                                      tagList.push(tag.name)
-                                  }
-                                  newArticles.push(article.toSendManyJSON(tagList))
-                         
-                              }   
-                         }
-        );
-      }
-      
-    //   async function asyncCall() {
-    //     console.log('calling');
-    //     var result = await resolveAfter2Seconds();
-    //     console.log(result);
-    //     // expected output: 'resolved'
-    //   }
-      
-    //   asyncCall();
-    //   res.status(200).json({
-    //             articles:newArticles,
-    //             articlesCount:newArticles.length
-    //         }) 
-
       
     const abc = async function (){
         let newArticles = []
@@ -125,35 +97,7 @@ router.get('/',async(req,res)=>{
         await abc();
        
         
-    
-    
-    
-    
-    // .then((articles)=>{
-    
-    //     ({
-    //         let newArticles = []
-    //         for(let article of articles){
-    //             article.getTags({attributes:['name']}).then((articleTags)=>{
-    //                 let tagList =[]            
-    //                 for(tag of articleTags){
-    //                     tagList.push(tag.name)
-    //                 }
-    //                 newArticles.push(article.toSendManyJSON(tagList))
-           
-    //             })           
-    //         }
-    //         res.status(200).json({
-    //             articles:newArticles,
-    //             articlesCount:newArticles.length
-    //         })
-    //     }()
-        
-         
-         
-    // }).catch(error=>{
-    //     res.sendStatus(404)
-    // })    
+     
 })
 router.get('/:slug',async(req,res)=>{    
     const article = await Article.findOne({
