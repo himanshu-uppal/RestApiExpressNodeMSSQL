@@ -50,7 +50,7 @@ User.prototype.toSendProfileJSON = function(){
 }
 /* Article Model */
 const Article = db.define('article',article)
-Article.prototype.toSendJSON = function(){
+Article.prototype.toSendJSON = function(tagList){
     return {
           article: {
           slug: this.slug,
@@ -64,7 +64,8 @@ Article.prototype.toSendJSON = function(){
               bio:this.user.bio,
               image:this.user.image,
               following:'haha'
-          }      
+          } ,
+          tagList:tagList   
         }
       }
 }
@@ -87,9 +88,15 @@ Article.prototype.toSendManyJSON = function(){
 }
 
 Article.prototype.generateSlug = function(){
-    if(this.title == '') return res.sendStatus(400)
+    if(this.title == '') return res.status(400).send('no tile')
     return slug(this.title)+'-'+Math.floor(1000+Math.random(1,100)*9000)
 }
+
+Article.generateSlug = function(title){
+    if(title == '') return res.status(400).send('no tile')
+    return slug(title)+'-'+Math.floor(1000+Math.random(1,100)*9000)
+}
+
 
 /* Comment Model */
 const Comment = db.define('comment',comment)

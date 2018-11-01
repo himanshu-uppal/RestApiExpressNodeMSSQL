@@ -17,7 +17,7 @@ DELETE /api/articles/:slug/comments/:id
 
 const {Sequelize} = require('sequelize')
 const {Router} = require('express')
-const {Article,User,Comment} = require('../models')
+const {Article,User,Comment,Tag} = require('../models')
 const auth = require('./auth')
 const Op = Sequelize.Op
 
@@ -98,22 +98,57 @@ router.post('/',auth.required,function(req,res){
     if(req.body.article != '' && (req.body.article.title == '' ||  req.body.article.description == ''||    req.body.article.body == '') ){
             res.sendStatus(400)
     }
-    const article = new Article()        
-        article.title=req.body.article.title,
-        article.description=req.body.article.description,
-        article.body=req.body.article.body
-        article.userId = req.payload.id
-        article.slug=article.generateSlug()
-        article.save().then(()=>{
-            Article.findOne({
-                where:{slug:article.slug},
-                include:[{model:User,attributes:['username','bio','image']}]
-            }).then((article)=>{
-                res.status(201).json(article.toSendJSON())
+
+    const tags =['tag1','tag2','tag3','tag4']
+    let tagsCreated =[]
+    for(tag in tags){
+       Tag.create({
+            name:tags[tag]
+        }).then((tag)=>{
+            tagsCreated.push(tag)
+        })
+    }
+
+
+
+  Article.create({
+        title:req.body.article.title,
+        description:req.body.article.description,
+        body:req.body.article.body,
+        userId:req.payload.id,
+        slug:Article.generateSlug(req.body.article.title),
+    }).then((article)=>{
+        // for(tag of tagsCreated){
+        //     article.addTag(tag)
+        // }
+        article.setTags(tagsCreated)
+        Article.findOne({
+            where:{slug:article.slug},
+            include:[{model:User,attributes:['username','bio','image']}]
+        }).then((article)=>{
+            article.getTags({attributes:['name']}).then((articleTags)=>{ 
+                let tagList =[]
+                for(tag of articleTags){
+                    tagList.push(tag.name)
+                }
+                res.status(201).json(article.toSendJSON(tagList))   
+               
             })
-        }).catch(error=>{
-            res.sendStatus(400)
-        })  
+           
+        })
+
+    }).catch(error=>{
+        res.status(400)
+    }) 
+
+//    then(()=>{
+//             Article.findOne({
+//                 where:{slug:article.slug},
+//                 include:[{model:User,attributes:['username','bio','image']}]
+//             }).then((article)=>{
+//                 res.status(201).json(article.toSendJSON())
+//             })
+//         }) 
 })
 
 router.put('/:slug',auth.required,function(req,res){
