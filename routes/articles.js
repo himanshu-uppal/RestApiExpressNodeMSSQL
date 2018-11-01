@@ -37,12 +37,17 @@ router.get('/',async(req,res)=>{
             if(req.query.author){
                 console.log('author='+req.query.author);
                  await User.findOne({                    
-                    where:{username:req.query.author},
-                    include:[User]
+                    where:{username:req.query.author}
                 }).then((user)=>{                    
                    if(user){
                     whereClause.push({userId:user.id})
-                   }              
+                   }   
+                   else{
+                       res.status(200).json({
+                           articles:[],
+                           articlesCount:0
+                       })
+                   }           
                      
                 })
                 }
@@ -67,8 +72,8 @@ router.get('/',async(req,res)=>{
         },
         offset:offset,
         limit:limit,
-        
-        
+        include:[{model:User,attributes:['username','bio','image']},{model:Tag,attributes:['name']}]
+     
     })
 
     if(tags){
@@ -92,9 +97,7 @@ router.get('/',async(req,res)=>{
     
 
         const resultArticles = await Article.findAll({where:{id:[...resultArticlesKeys]},include:[{model:User,attributes:['username','bio','image']},{model:Tag,attributes:['name']}]})
-       articles = resultArticles
-
-        
+       articles = resultArticles     
 
 
         }
