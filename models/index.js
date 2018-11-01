@@ -11,9 +11,9 @@ const db = new Sequelize({
    username:'test',
    database:'test',
    password:'test',
-  // host:'10.175.14.46',
+   host:'10.175.13.47',
    //host:'192.168.1.6',
-   host:'192.168.43.52',
+   //host:'192.168.43.52',
    port:1433
 })
 
@@ -70,7 +70,7 @@ Article.prototype.toSendJSON = function(tagList){
       }
 }
 
-Article.prototype.toSendManyJSON = function(){
+Article.prototype.toSendManyJSON = function(tagList){
     return {         
           slug: this.slug,
           title: this.title,
@@ -83,7 +83,9 @@ Article.prototype.toSendManyJSON = function(){
               bio:this.user.bio,
               image:this.user.image,
               following:'haha'
-          }      
+          }     ,
+          tagList:tagList   
+         
         }      
 }
 

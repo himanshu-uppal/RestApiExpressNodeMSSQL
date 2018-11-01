@@ -65,30 +65,111 @@ router.get('/',async(req,res)=>{
         },
         offset:offset,
         limit:limit,
-        include:[{model:User,attributes:['username','bio','image']}]
+        include:[{model:User,attributes:['username','bio','image']},{model:Tag,attributes:['name']}]
         
-    }).then((articles)=>{
-        let newArticles = []
-        for(let article of articles){
-            newArticles.push(article.toSendManyJSON())
-        }
-        res.status(200).json({
-            articles:newArticles,
-            articlesCount:articles.length
-        })
-    }).catch(error=>{
-        res.sendStatus(404)
     })
+
+    function resolveAfter2Seconds() {
+        return new Promise(resolve => {
+            for(let article of articles){
+                            const articleTags = article.getTags({attributes:['name']})
+                                  let tagList =[]            
+                                  for(tag of articleTags){
+                                      tagList.push(tag.name)
+                                  }
+                                  newArticles.push(article.toSendManyJSON(tagList))
+                         
+                              }   
+                         }
+        );
+      }
+      
+    //   async function asyncCall() {
+    //     console.log('calling');
+    //     var result = await resolveAfter2Seconds();
+    //     console.log(result);
+    //     // expected output: 'resolved'
+    //   }
+      
+    //   asyncCall();
+    //   res.status(200).json({
+    //             articles:newArticles,
+    //             articlesCount:newArticles.length
+    //         }) 
+
+      
+    const abc = async function (){
+        let newArticles = []
+
+         
+        const def = async function(){ 
+            for(let article of articles){
+                const articleTags = await article.getTags({attributes:['name']})
+
+                    let tagList =[]            
+                    for(tag of articleTags){
+                        tagList.push(tag.name)
+                    }
+                    newArticles.push(article.toSendManyJSON(tagList))
+               
+              }   
+            }
+             await def();
+             res.status(200).json({
+                articles:newArticles,
+                articlesCount:newArticles.length
+            })
+             
+                
+          }
+        await abc();
+       
+        
     
+    
+    
+    
+    // .then((articles)=>{
+    
+    //     ({
+    //         let newArticles = []
+    //         for(let article of articles){
+    //             article.getTags({attributes:['name']}).then((articleTags)=>{
+    //                 let tagList =[]            
+    //                 for(tag of articleTags){
+    //                     tagList.push(tag.name)
+    //                 }
+    //                 newArticles.push(article.toSendManyJSON(tagList))
+           
+    //             })           
+    //         }
+    //         res.status(200).json({
+    //             articles:newArticles,
+    //             articlesCount:newArticles.length
+    //         })
+    //     }()
+        
+         
+         
+    // }).catch(error=>{
+    //     res.sendStatus(404)
+    // })    
 })
 router.get('/:slug',async(req,res)=>{    
     const article = await Article.findOne({
         where:{
             slug:req.params.slug
         },
-        include:[{model:User,attributes:['username','bio','image']}]
-    }).then((article)=>{
-        res.status(200).json(article.toSendJSON())
+        include:[{model:User,attributes:['username','bio','image']},{model:Tag,attributes:['name']}]
+    }).then((article)=>{  
+        article.getTags({attributes:['name']}).then((articleTags)=>{ 
+        let tagList =[]
+        for(tag of articleTags){
+            tagList.push(tag.name)
+        }
+        res.status(201).json(article.toSendJSON(tagList))   
+       
+    })
     }).catch(error=>{
         res.sendStatus(404)
     })
@@ -153,7 +234,7 @@ router.post('/',auth.required,function(req,res){
 
 router.put('/:slug',auth.required,function(req,res){
     const article = Article.findOne({where:{slug:req.params.slug},
-        include:[{model:User,attributes:['username','bio','image']}]        
+        include:[{model:User,attributes:['username','bio','image']},{model:Tag,attributes:['name']}]        
     }).then((article)=>{    
         if(req.payload.id == article.userId){
             if(req.body.article.title )
@@ -162,8 +243,15 @@ router.put('/:slug',auth.required,function(req,res){
             article.description = req.body.article.description
             if(req.body.article.body )
             article.body = req.body.article.body
-            article.save().then(()=>{
-                res.status(201).json(article.toSendJSON())
+            article.save().then((article)=>{                
+                article.getTags({attributes:['name']}).then((articleTags)=>{ 
+                    let tagList =[]
+                    for(tag of articleTags){
+                        tagList.push(tag.name)
+                    }
+                    res.status(201).json(article.toSendJSON(tagList))   
+                   
+                })
             })
         }
         else{
