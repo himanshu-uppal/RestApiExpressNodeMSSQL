@@ -24,12 +24,14 @@ const Op = Sequelize.Op
 const router = Router()
 
 router.get('/',async(req,res)=>{
+    let tags
     let whereClause = []
     let offset=0,limit=10
     for(key of Object.keys(req.query)){
         switch(key){
             case 'tag': console.log('tag') 
-            //whereClause.push({tag:req.query.tag})
+            console.log(req.query.tag)
+            tags = await Tag.findAll({where:{name:req.query.tag}})           
             break;
             case 'author': console.log('author')
             if(req.query.author){
@@ -69,11 +71,40 @@ router.get('/',async(req,res)=>{
         
     })
 
-      
+    if(tags){
+        const findTagArticles = async function(){
+            let allArticlekeys = new Set();
+            for(let article of articles){
+                allArticlekeys.add(article.id)
+        }
+
+        console.log(allArticlekeys)
+
+        let tagArticleKeys = new Set();      
+        for(let tag of tags){
+            const articles = await tag.getArticles({include:[{model:User,attributes:['username','bio','image']},{model:Tag,attributes:['name']}]})
+            for(let article of articles){
+                tagArticleKeys.add(article.id)
+            }            
+        }     
+        let resultArticlesKeys = new Set(
+            [...allArticlekeys].filter(x => tagArticleKeys.has(x)));
+    
+
+        const resultArticles = await Article.findAll({where:{id:[...resultArticlesKeys]}})
+        res.send(resultArticles)
+
+        
+
+
+        }
+        await findTagArticles()
+        
+    }
+
     const abc = async function (){
         let newArticles = []
 
-         
         const def = async function(){ 
             for(let article of articles){
                 const articleTags = await article.getTags({attributes:['name']})
@@ -90,11 +121,14 @@ router.get('/',async(req,res)=>{
              res.status(200).json({
                 articles:newArticles,
                 articlesCount:newArticles.length
-            })
-             
+            })             
                 
           }
         await abc();
+
+   
+    
+   
        
         
      
@@ -271,9 +305,13 @@ router.get('/:slug/comments',async(req,res)=>{
 
 router.delete('/:slug/comments/:id',auth.required,async(req,res)=>{
     Article.findOne({where:{slug:req.params.slug}}).then((article)=>{
-        const comment = Comment.findOne({where:{id:req.params.id}}).then((comment)=>{           
-           comment.destroy()
-           res.sendStatus(200)
+        const comment = Comment.findOne({where:{id:req.params.id}}).then((comment)=>{  
+            if(comment.articleId == article.id){
+                comment.destroy()
+                res.sendStatus(200)
+
+            }         
+           
             
         })       
        
