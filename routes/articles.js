@@ -36,7 +36,7 @@ router.get('/',async(req,res)=>{
             case 'author': console.log('author')
             if(req.query.author){
                 console.log('author='+req.query.author);
-                const user = await User.findOne({                    
+                 await User.findOne({                    
                     where:{username:req.query.author},
                     include:[User]
                 }).then((user)=>{                    
@@ -60,14 +60,14 @@ router.get('/',async(req,res)=>{
             break;
         }
     }
-    const articles = await Article.findAll({
+    let articles = await Article.findAll({
         where:{
              [Op.and]:whereClause
             
         },
         offset:offset,
         limit:limit,
-        include:[{model:User,attributes:['username','bio','image']},{model:Tag,attributes:['name']}]
+        
         
     })
 
@@ -82,7 +82,7 @@ router.get('/',async(req,res)=>{
 
         let tagArticleKeys = new Set();      
         for(let tag of tags){
-            const articles = await tag.getArticles({include:[{model:User,attributes:['username','bio','image']},{model:Tag,attributes:['name']}]})
+            const articles = await tag.getArticles()
             for(let article of articles){
                 tagArticleKeys.add(article.id)
             }            
@@ -91,8 +91,8 @@ router.get('/',async(req,res)=>{
             [...allArticlekeys].filter(x => tagArticleKeys.has(x)));
     
 
-        const resultArticles = await Article.findAll({where:{id:[...resultArticlesKeys]}})
-        res.send(resultArticles)
+        const resultArticles = await Article.findAll({where:{id:[...resultArticlesKeys]},include:[{model:User,attributes:['username','bio','image']},{model:Tag,attributes:['name']}]})
+       articles = resultArticles
 
         
 
@@ -158,7 +158,7 @@ router.post('/',auth.required,function(req,res){
             res.sendStatus(400)
     }
 
-    const tags =['tag1','tag2','tag3','tag4']
+    const tags =['tag5','tag6','tag1']
     let tagsCreated =[]
     for(tag in tags){
        Tag.create({
