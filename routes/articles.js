@@ -31,7 +31,8 @@ router.get('/',async(req,res)=>{
         switch(key){
             case 'tag': console.log('tag') 
             console.log(req.query.tag)
-            tags = await Tag.findAll({where:{name:req.query.tag}})           
+            tags = await Tag.findAll({where:{name:{[Op.like]:'%'+req.query.tag+'%'}}})  //alternate
+            //tags = await Tag.findOne({where:{name:{[Op.like]:'%'+req.query.tag+'%'}}})           
             break;
             case 'author': console.log('author')
             if(req.query.author){
@@ -65,6 +66,7 @@ router.get('/',async(req,res)=>{
             break;
         }
     }
+   
     let articles = await Article.findAll({
         where:{
              [Op.and]:whereClause
@@ -86,12 +88,17 @@ router.get('/',async(req,res)=>{
         console.log(allArticlekeys)
 
         let tagArticleKeys = new Set();      
-        for(let tag of tags){
+        for(let tag of tags){                    //alternate
             const articles = await tag.getArticles()
             for(let article of articles){
                 tagArticleKeys.add(article.id)
             }            
-        }     
+        } 
+        
+        // const tagArticlesFetched = await tags.getArticles()  //alternate
+        // for(let article of tagArticlesFetched){            //alternate
+        //              tagArticleKeys.add(article.id) //alternate
+        //      }                                       //alternate
         let resultArticlesKeys = new Set(
             [...allArticlekeys].filter(x => tagArticleKeys.has(x)));
     
@@ -156,19 +163,18 @@ router.get('/:slug',async(req,res)=>{
     })
     
 })
-router.post('/',auth.required,function(req,res){    
+router.post('/',auth.required,async(req,res)=>{    
     if(req.body.article != '' && (req.body.article.title == '' ||  req.body.article.description == ''||    req.body.article.body == '') ){
             res.sendStatus(400)
     }
 
-    const tags =['tag5','tag6','tag1']
+    const tagList =req.body.article.tagList
     let tagsCreated =[]
-    for(tag in tags){
-       Tag.create({
-            name:tags[tag]
-        }).then((tag)=>{
-            tagsCreated.push(tag)
-        })
+    for(tag in tagList){
+      let tagCreated = await  Tag.create({
+            name:tagList[tag]
+        })        
+      tagsCreated.push(tagCreated)        
     }
 
 
@@ -179,10 +185,7 @@ router.post('/',auth.required,function(req,res){
         body:req.body.article.body,
         userId:req.payload.id,
         slug:Article.generateSlug(req.body.article.title),
-    }).then((article)=>{
-        // for(tag of tagsCreated){
-        //     article.addTag(tag)
-        // }
+    }).then((article)=>{      
         article.setTags(tagsCreated)
         Article.findOne({
             where:{slug:article.slug},
@@ -203,14 +206,6 @@ router.post('/',auth.required,function(req,res){
         res.status(400)
     }) 
 
-//    then(()=>{
-//             Article.findOne({
-//                 where:{slug:article.slug},
-//                 include:[{model:User,attributes:['username','bio','image']}]
-//             }).then((article)=>{
-//                 res.status(201).json(article.toSendJSON())
-//             })
-//         }) 
 })
 
 router.put('/:slug',auth.required,function(req,res){
