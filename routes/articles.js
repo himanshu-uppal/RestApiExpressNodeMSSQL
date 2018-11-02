@@ -164,7 +164,7 @@ router.post('/',auth.required,async(req,res)=>{
             res.sendStatus(400)
     }
 
-    const tagList =req.body.article.tagList
+    const tagList =[...new Set(req.body.article.tagList)];
     let tagsCreated =[]
     
     for(tag in tagList){
