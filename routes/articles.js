@@ -313,19 +313,19 @@ router.delete('/:slug/comments/:id',auth.required,async(req,res)=>{
        res.sendStatus(404)
    }
   
-   const comment = await article.getComment({where:{id:req.params.id}})
+   const comment = await Comment.findOne({where:{id:req.params.id}})
    if(!comment){
     res.sendStatus(404)
 }
 
-    const commentAuthor = await comment.getUser()
-    if(commentAuthor.id != user.id){
+    //const commentAuthor = await User.findOne({where:{id:comment.userId}})
+
+    if(comment.userId != user.id){
         res.sendStatus(403)
 
     }
 
-
-   comment.destroy().then(()=>{
+   comment.destroy().then((result)=>{
     res.sendStatus(200)
 
    }).catch(error=>{
