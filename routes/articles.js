@@ -74,7 +74,8 @@ router.get('/',async(req,res)=>{
         },
         offset:offset,
         limit:limit,
-        include:[{model:User,attributes:['username','bio','image']},{model:Tag,attributes:['name']}]
+        include:[{model:User,attributes:['username','bio','image']},{model:Tag,attributes:['name']}],
+        order:[['createdAt','DESC']]
      
     })
 
@@ -94,7 +95,7 @@ router.get('/',async(req,res)=>{
                 tagArticleKeys.add(article.id)
             }            
         } 
-        
+
         // const tagArticlesFetched = await tags.getArticles()  //alternate
         // for(let article of tagArticlesFetched){            //alternate
         //              tagArticleKeys.add(article.id) //alternate
@@ -103,7 +104,7 @@ router.get('/',async(req,res)=>{
             [...allArticlekeys].filter(x => tagArticleKeys.has(x)));
     
 
-        const resultArticles = await Article.findAll({where:{id:[...resultArticlesKeys]},include:[{model:User,attributes:['username','bio','image']},{model:Tag,attributes:['name']}]})
+        const resultArticles = await Article.findAll({where:{id:[...resultArticlesKeys]},include:[{model:User,attributes:['username','bio','image']},{model:Tag,attributes:['name']}], order:[['createdAt','DESC']]})
        articles = resultArticles     
 
 
@@ -134,12 +135,7 @@ router.get('/',async(req,res)=>{
             })             
                 
           }
-        await abc();
-
-   
-    
-   
-       
+        await abc();      
         
      
 })
@@ -170,11 +166,17 @@ router.post('/',auth.required,async(req,res)=>{
 
     const tagList =req.body.article.tagList
     let tagsCreated =[]
+    
     for(tag in tagList){
-      let tagCreated = await  Tag.create({
-            name:tagList[tag]
-        })        
-      tagsCreated.push(tagCreated)        
+
+   await Tag.findOrCreate({where:{name:tagList[tag]}  }).spread((tagFoundOrCreated,created)=>{
+      // console.log(tagFoundOrCreated.id)
+           tagsCreated.push(tagFoundOrCreated)
+   })
+
+   
+
+              
     }
 
 
@@ -185,8 +187,9 @@ router.post('/',auth.required,async(req,res)=>{
         body:req.body.article.body,
         userId:req.payload.id,
         slug:Article.generateSlug(req.body.article.title),
-    }).then((article)=>{      
-        article.setTags(tagsCreated)
+    }).then((article)=>{    
+        article.setTags(tagsCreated) 
+        
         Article.findOne({
             where:{slug:article.slug},
             include:[{model:User,attributes:['username','bio','image']}]
@@ -232,7 +235,6 @@ router.put('/:slug',auth.required,function(req,res){
         }
         else{
             res.sendStatus(403) //dont have permission
-
         }
 
     }).catch(error=>{
@@ -302,20 +304,53 @@ router.get('/:slug/comments',async(req,res)=>{
 })
 
 router.delete('/:slug/comments/:id',auth.required,async(req,res)=>{
-    Article.findOne({where:{slug:req.params.slug}}).then((article)=>{
-        const comment = Comment.findOne({where:{id:req.params.id}}).then((comment)=>{  
-            if(comment.articleId == article.id){
-                comment.destroy()
-                res.sendStatus(200)
+   const article = await  Article.findOne({where:{slug:req.params.slug}})
+   if(!article){
+    res.sendStatus(404)
+}
+   const user = await User.findOne({where:{id:req.payload.id}})
+   if(!user){
+       res.sendStatus(404)
+   }
+  
+   const comment = await article.getComment({where:{id:req.params.id}})
+   if(!comment){
+    res.sendStatus(404)
+}
 
-            }         
+    const commentAuthor = await comment.getUser()
+    if(commentAuthor.id != user.id){
+        res.sendStatus(403)
+
+    }
+
+
+   comment.destroy().then(()=>{
+    res.sendStatus(200)
+
+   }).catch(error=>{
+         res.sendStatus(404)
+     })
+   
+
+        
+
+
+
+
+    //     const comment = Comment.findOne({where:{id:req.params.id}}).then((comment)=>{  
+    //         if(comment.articleId == article.id){
+    //             comment.destroy()
+    //             res.sendStatus(200)
+
+    //         }         
            
             
-        })       
+    //     })       
        
-    }).catch(error=>{
-        res.sendStatus(404)
-    })
+    // }).catch(error=>{
+    //     res.sendStatus(404)
+    // })
 })
 
 
